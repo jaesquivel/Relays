@@ -52,7 +52,7 @@ void loop()
 	EXECUTEFAST() {
 		UPDATEFAST();
 
-		FAST_50ms() {	// Process  logic and relevant input and output every 50 milliseconds
+		FAST_10ms() {	// Process  logic and relevant input and output every 50 milliseconds
 
 			// Test communications
 			button_address button;
