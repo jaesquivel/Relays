@@ -21,11 +21,12 @@
 #include <SPI.h>
 #include <Souliss.h>
 
+#include "../../ControllerGateway/include/types.h"
 #include "../../ControllerGateway/include/constants.h"
 
 // Pin assignment
-#define RELAY_1_PIN			A0
-#define RELAY_2_PIN			A1
+#define RELAY_1_PIN			10
+#define RELAY_2_PIN			11
 
 void setup()
 {
@@ -38,8 +39,11 @@ void setup()
 	pinMode(RELAY_1_PIN, OUTPUT);
 	pinMode(RELAY_2_PIN, OUTPUT);
 
-	Set_T11(RELAYS_1_RELAY_1_SLOT);
-	Set_T11(RELAYS_1_RELAY_2_SLOT);
+	Set_T11(RELAYS_MODULE_RELAY_1_SLOT);
+	Set_T11(RELAYS_MODULE_RELAY_2_SLOT);
+
+	pinMode(13, OUTPUT); // Debug
+
 }
 
 void loop()
@@ -50,13 +54,27 @@ void loop()
 
 		FAST_50ms() {	// Process  logic and relevant input and output every 50 milliseconds
 
+			// Test communications
+			button_address button;
+			uint8_t len;
+			if (subscribedata(BUTTON_PUSHED_EVENT, (uint8_t*)&button, &len)) {
+				if (button.button_panel_addr == RS485_BUTTONS_PANEL_1_ADDR && button.button == 1) {
+					digitalWrite(13, LOW);
+				}
+				if (button.button_panel_addr == RS485_BUTTONS_PANEL_1_ADDR && button.button == 2) {
+					digitalWrite(13, HIGH);
+				}
+			}
+
 			// Execute the logic
-			Logic_T11(RELAYS_1_RELAY_1_SLOT);
-			Logic_T11(RELAYS_1_RELAY_2_SLOT);
+			Logic_T11(RELAYS_MODULE_RELAY_1_SLOT);
+			Logic_T11(RELAYS_MODULE_RELAY_2_SLOT);
 
 			// Drive the Relays
-			DigOut(RELAY_1_PIN, Souliss_T1n_Coil, RELAYS_1_RELAY_1_SLOT);
-			DigOut(RELAY_2_PIN, Souliss_T1n_Coil, RELAYS_1_RELAY_2_SLOT);
+			DigOut(RELAY_1_PIN, Souliss_T1n_Coil, RELAYS_MODULE_RELAY_1_SLOT);
+			DigOut(RELAY_2_PIN, Souliss_T1n_Coil, RELAYS_MODULE_RELAY_2_SLOT);
+
+			DigOut(13, Souliss_T1n_Coil, RELAYS_MODULE_RELAY_1_SLOT);
 		}
 
 		// Process the communication, this include the command that are coming from SoulissApp
